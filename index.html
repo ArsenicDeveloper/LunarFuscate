@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LunarFuscate</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#030a1c;--pur:#6d28d9;--ind:#4338ca;--cy:#06b6d4;
+  --card:rgba(8,15,42,.72);--bord:rgba(109,40,217,.22);--txt:#e2e8f0;--mut:#475569;
+}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:'DM Sans',system-ui,sans-serif;color:var(--txt);min-height:100vh;
+  background:
+    radial-gradient(ellipse 75% 50% at 92% -5%,rgba(109,40,217,.24) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 45% at -8% 105%,rgba(67,56,202,.18) 0%,transparent 55%),
+    radial-gradient(ellipse 45% 35% at 50% 52%,rgba(6,182,212,.04) 0%,transparent 60%),
+    linear-gradient(168deg,#030a1c 0%,#07102a 48%,#040e20 100%);
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 11% 15%,rgba(255,255,255,.58) 0%,transparent 100%),
+    radial-gradient(1px 1px at 77% 8%,rgba(255,255,255,.44) 0%,transparent 100%),
+    radial-gradient(1px 1px at 39% 63%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 62% 80%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 5% 73%,rgba(255,255,255,.54) 0%,transparent 100%),
+    radial-gradient(1px 1px at 94% 47%,rgba(255,255,255,.35) 0%,transparent 100%),
+    radial-gradient(2px 2px at 26% 10%,rgba(167,139,250,.56) 0%,transparent 100%),
+    radial-gradient(1px 1px at 68% 32%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 84% 88%,rgba(255,255,255,.44) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 48% 43%,rgba(147,197,253,.34) 0%,transparent 100%),
+    radial-gradient(1px 1px at 20% 91%,rgba(255,255,255,.44) 0%,transparent 100%),
+    radial-gradient(1px 1px at 92% 22%,rgba(255,255,255,.38) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 5%,rgba(255,255,255,.54) 0%,transparent 100%),
+    radial-gradient(1px 1px at 34% 38%,rgba(255,255,255,.27) 0%,transparent 100%),
+    radial-gradient(1px 1px at 73% 56%,rgba(199,210,254,.3) 0%,transparent 100%);
+}
+#app{position:relative;z-index:1}
+
+/* ── Glass ── */
+.glass{
+  background:var(--card);backdrop-filter:blur(24px);
+  border:1px solid var(--bord);
+  box-shadow:0 8px 36px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);
+  transition:border-color .25s,box-shadow .25s,transform .25s;
+}
+.glass:hover{
+  border-color:rgba(109,40,217,.42);
+  box-shadow:0 14px 50px rgba(109,40,217,.13),inset 0 1px 0 rgba(255,255,255,.06);
+  transform:translateY(-2px);
+}
+.mc.glass:hover{transform:none}/* no lift on mode cards */
+
+/* ── Inputs ── */
+textarea,input[type=text],input[type=password]{
+  font-family:'JetBrains Mono',ui-monospace,monospace!important;
+  background:rgba(2,6,18,.9)!important;color:#c4b5fd!important;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+input::placeholder{color:#1e293b!important}
+textarea::placeholder{color:#1a2540!important}
+textarea:focus,input:focus{
+  border-color:rgba(109,40,217,.6)!important;
+  box-shadow:0 0 0 3px rgba(109,40,217,.1)!important;
+}
+
+/* ── Typography ── */
+.syne{font-family:'Syne',sans-serif}
+.lt{
+  font-family:'Syne',sans-serif;font-weight:800;
+  background:linear-gradient(118deg,#f0eaff 0%,#a78bfa 28%,#818cf8 60%,#67e8f9 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.moon{filter:drop-shadow(0 0 16px rgba(240,210,70,.72))}
+
+/* ── Credit pill ── */
+.cpill{
+  background:linear-gradient(135deg,rgba(109,40,217,.2),rgba(67,56,202,.14));
+  border:1px solid rgba(109,40,217,.34);border-radius:9999px;
+}
+
+/* ── Mode Cards ── */
+.mc{cursor:pointer;border-radius:.9rem;padding:.95rem 1.1rem;transition:all .3s ease;display:flex;flex-direction:column;gap:3px}
+.mc-s{background:rgba(30,64,175,.1);border:1px solid rgba(96,165,250,.18)}
+.mc-s:hover,.mc-s.on{background:rgba(30,64,175,.26);border-color:rgba(96,165,250,.68);box-shadow:0 0 24px rgba(96,165,250,.12)}
+.mc-p{background:rgba(109,40,217,.1);border:1px solid rgba(167,139,250,.18)}
+.mc-p:hover,.mc-p.on{background:rgba(109,40,217,.3);border-color:rgba(167,139,250,.68);box-shadow:0 0 24px rgba(167,139,250,.16)}
+.mc-d{background:rgba(127,29,29,.12);border:1px solid rgba(239,68,68,.18);position:relative;overflow:hidden}
+.mc-d::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,rgba(239,68,68,.07),transparent 70%);animation:dp 2.8s ease-in-out infinite}
+.mc-d:hover,.mc-d.on{background:rgba(153,27,27,.3);border-color:rgba(239,68,68,.68);box-shadow:0 0 28px rgba(239,68,68,.2)}
+@keyframes dp{0%,100%{opacity:.2}50%{opacity:.9}}
+
+/* ── Badges ── */
+.bdg{font-size:9.5px;padding:1px 7px;border-radius:9999px;font-weight:700;letter-spacing:.06em;font-family:'Syne',sans-serif}
+.b-b{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.22)}
+.b-p{background:rgba(109,40,217,.15);color:#c4b5fd;border:1px solid rgba(109,40,217,.22)}
+.b-r{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
+
+/* ── Feature icon ── */
+.fic{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+/* ── Animations ── */
+.fade{animation:fup .4s ease both}
+.pop{animation:pop .38s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes fup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* ── Misc ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.15)}
+::-webkit-scrollbar-thumb{background:rgba(109,40,217,.35);border-radius:2px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.15);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.notice{font-size:11px;color:#1e293b;margin-top:5px}
+</style>
+</head>
+<body>
+<div id="app" class="max-w-4xl mx-auto px-5 pb-12 pt-6"></div>
+<script>
+// ─── Config ────────────────────────────────────────────────────────────────
+const UK='lf_u', CK='lf_c';
+let CU=null, SM='simple';
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const gU = ()  => JSON.parse(localStorage.getItem(UK)||'{}');
+const gC = ()  => JSON.parse(localStorage.getItem(CK)||'{}');
+const sU = v   => localStorage.setItem(UK, JSON.stringify(v));
+const sC = v   => localStorage.setItem(CK, JSON.stringify(v));
+const b64= s   => btoa(unescape(encodeURIComponent(s)));
+const rnd= (n=8)=> Math.random().toString(36).slice(2,2+n);
+
+// ─── Obfuscation Engine ────────────────────────────────────────────────────
+
+// Confusing l/I/1 variable names
+function rV(n=9){
+  const p='lIlI1lIl1IlIl1lI'; let s='_';
+  for(let i=0;i<n;i++) s+=p[Math.random()*p.length|0];
+  return s;
+}
+
+// Junk variable flood
+function genJunk(count){
+  const a=[];
+  for(let i=0;i<count;i++){
+    const t=i%3;
+    if(t===0) a.push(`local ${rV(8+i%3)}='${rnd(20+i%6)}'`);
+    else if(t===1) a.push(`local ${rV(7+i%4)}=${Math.random()*0xFFFFFFFF>>>0}`);
+    else a.push(`local ${rV(6+i%5)}={['${rnd(4)}']=true}`);
+  }
+  return a.join('\n');
+}
+
+// XOR byte-level encryption
+function xorB(str,key){
+  const o=[];
+  for(let i=0;i<str.length;i++) o.push(str.charCodeAt(i)^key[i%key.length]);
+  return o;
+}
+
+function obfuscate(code,level){
+  const b0=b64(code||'');
+
+  // ── SIMPLE: 2× B64 + 350 comment lines ───────────────────────────────
+  if(level==='simple'){
+    let j='';
+    for(let i=0;i<350;i++) j+=`-- ${rnd(18)}${rnd(18)}\n`;
+    const h=rV(),p=rV(),d=rV();
+    return [
+      `-- LunarFuscate Simple`,`-- lunar:${rnd(16)}`,j,
+      `local ${h}=game:GetService('HttpService')`,
+      `local ${p}='${b64(b0)}'`,
+      `local ${d}=${h}:Base64Decode(${h}:Base64Decode(${p}))`,
+      `loadstring(${d})()`
+    ].join('\n');
+  }
+
+  // ── PREMIUM: 4× B64 + 5,000 junk vars ────────────────────────────────
+  if(level==='premium'){
+    const b1=b64(b0),b2=b64(b1),b3=b64(b2);
+    const h=rV(),a=rV(),c=rV(),d=rV(),e=rV(),f=rV();
+    return [
+      `-- LunarFuscate Premium`,`-- lunar:${rnd(16)}`,
+      genJunk(5000),
+      `local ${h}=game:GetService('HttpService')`,
+      `local ${a}='${rnd(12)}'`,
+      `local ${c}='${b3}'`,
+      `local ${d}=${h}:Base64Decode(${c})`,
+      `local ${e}=${h}:Base64Decode(${d})`,
+      `local ${f}=${h}:Base64Decode(${e})`,
+      `loadstring(${h}:Base64Decode(${f}))()`
+    ].join('\n');
+  }
+
+  // ── DEMONIC: XOR cipher + 6× B64 + 200,000 junk vars ─────────────────
+  // Six rounds of Base64
+  const b1=b64(b0),b2=b64(b1),b3=b64(b2),b4=b64(b3),b5=b64(b4);
+
+  // 32-byte random XOR key (values 28–227 for safe byte range)
+  const KL=32;
+  const key=Array.from({length:KL},()=>28+Math.floor(Math.random()*200));
+  const enc=xorB(b5,key);
+
+  // Pack XOR'd bytes into Lua number-array chunks of 64
+  const chunks=[];
+  for(let i=0;i<enc.length;i+=64)
+    chunks.push('{'+enc.slice(i,i+64).join(',')+'}');
+
+  const kp=(s,e)=>key.slice(s,e).join(',');
+
+  // All Lua variable names are random l/I/1 look-alikes
+  const h=rV(),k1=rV(),k2=rV(),k3=rV(),k4=rV(),kk=rV();
+  const ch=rV(),ix=rV(),by=rV(),rs=rV();
+  const s1=rV(),s2=rV(),s3=rV(),s4=rV(),s5=rV();
+
+  const chunkTbl=`local ${ch}={\n${chunks.map(c=>'  '+c).join(',\n')}\n}`;
+
+  const keySetup=[
+    `local ${k1}={${kp(0,8)}}`,
+    `local ${k2}={${kp(8,16)}}`,
+    `local ${k3}={${kp(16,24)}}`,
+    `local ${k4}={${kp(24,32)}}`,
+    `local ${kk}={}`,
+    `for _,v in ipairs(${k1}) do table.insert(${kk},v) end`,
+    `for _,v in ipairs(${k2}) do table.insert(${kk},v) end`,
+    `for _,v in ipairs(${k3}) do table.insert(${kk},v) end`,
+    `for _,v in ipairs(${k4}) do table.insert(${kk},v) end`,
+  ].join('\n');
+
+  // XOR decode loop + 6× Base64 decode chain
+  const decoder=[
+    `local ${ix}=1`,
+    `local ${by}={}`,
+    `for _,chunk in ipairs(${ch}) do`,
+    `  for _,bv in ipairs(chunk) do`,
+    `    ${by}[${ix}]=string.char(bit32.bxor(bv,${kk}[(${ix}-1)%${KL}+1]))`,
+    `    ${ix}=${ix}+1`,
+    `  end`,
+    `end`,
+    `local ${rs}=table.concat(${by})`,
+    `local ${s1}=${h}:Base64Decode(${rs})`,   // decode 1 → b4
+    `local ${s2}=${h}:Base64Decode(${s1})`,   // decode 2 → b3
+    `local ${s3}=${h}:Base64Decode(${s2})`,   // decode 3 → b2
+    `local ${s4}=${h}:Base64Decode(${s3})`,   // decode 4 → b1
+    `local ${s5}=${h}:Base64Decode(${s4})`,   // decode 5 → b0
+    `loadstring(${h}:Base64Decode(${s5}))()`  // decode 6 → src → exec
+  ].join('\n');
+
+  return [
+    `-- LunarFuscate Demonic`,`-- lunar:${rnd(20)}`,
+    genJunk(200000),'',
+    `local ${h}=game:GetService('HttpService')`,
+    chunkTbl,keySetup,decoder
+  ].join('\n');
+}
+
+// ─── Clipboard ─────────────────────────────────────────────────────────────
+async function copyText(text){
+  if(navigator.clipboard&&window.isSecureContext){
+    try{await navigator.clipboard.writeText(text);return true;}catch(_){}
+  }
+  const t=document.createElement('textarea');
+  Object.assign(t.style,{position:'fixed',opacity:'0'});
+  t.value=text;document.body.appendChild(t);t.focus();t.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch(_){}
+  document.body.removeChild(t);return ok;
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────────
+function toast(msg,type='ok'){
+  const ic={ok:'fa-check-circle',warn:'fa-exclamation-circle',err:'fa-times-circle'};
+  const cl={ok:'#22c55e',warn:'#f59e0b',err:'#ef4444'};
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;bottom:20px;right:20px;z-index:9999;padding:11px 16px;border-radius:14px;font-size:13px;font-family:DM Sans,sans-serif;font-weight:500;color:#fff;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.6);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.07);background:rgba(4,10,28,.96);animation:fup .3s ease;max-width:270px;';
+  el.innerHTML=`<i class='fa-solid ${ic[type]}' style='color:${cl[type]};font-size:14px'></i>${msg}`;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),320);},2700);
+}
+
+// ─── Auth Page ─────────────────────────────────────────────────────────────
+function renderAuth(){
+  $('app').innerHTML=`
+  <div class='fade' style='min-height:90vh;display:flex;align-items:center;justify-content:center'>
+    <div class='glass rounded-3xl pop' style='width:100%;max-width:350px;padding:2rem 2rem 1.75rem'>
+      <div style='text-align:center;margin-bottom:26px'>
+        <div style='font-size:2.8rem;margin-bottom:8px' class='moon'>🌙</div>
+        <h1 class='lt' style='font-size:1.9rem;margin:0'>LunarFuscate</h1>
+        <p class='syne' style='font-size:10.5px;color:#334155;margin:5px 0 0;letter-spacing:.14em'>LUA OBFUSCATION SUITE</p>
+      </div>
+      <div style='display:flex;flex-direction:column;gap:10px;margin-bottom:14px'>
+        <input id='aU' type='text' class='w-full rounded-2xl border border-white/8' style='padding:12px 15px;font-size:13px' placeholder='Username'/>
+        <input id='aP' type='password' class='w-full rounded-2xl border border-white/8' style='padding:12px 15px;font-size:13px' placeholder='Password'/>
+      </div>
+      <div style='display:grid;grid-template-columns:1fr 1fr;gap:9px'>
+        <button onclick='doReg()' class='glass rounded-2xl' style='padding:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif;border:none'>
+          <i class='fa-solid fa-user-plus' style='color:#a78bfa;margin-right:6px'></i>Register
+        </button>
+        <button onclick='doLog()' class='rounded-2xl' style='padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:Syne,sans-serif;letter-spacing:.03em;background:linear-gradient(135deg,#6d28d9,#4338ca);box-shadow:0 4px 20px rgba(109,40,217,.44);color:#fff;border:none'>
+          <i class='fa-solid fa-right-to-bracket' style='margin-right:6px'></i>LOGIN
+        </button>
+      </div>
+      <p style='text-align:center;font-size:11px;color:#1e293b;margin-top:18px'>Credentials stored locally in your browser</p>
+    </div>
+  </div>`;
+}
+function doReg(){
+  const u=$('aU').value.trim(),p=$('aP').value;
+  if(!u||!p){toast('Fill both fields','warn');return;}
+  const x=gU();if(x[u]){toast('Username taken','warn');return;}
+  x[u]={password:p};sU(x);toast('Registered! Now login.','ok');
+}
+function doLog(){
+  const u=$('aU').value.trim(),p=$('aP').value;
+  if(gU()[u]?.password!==p){toast('Wrong credentials','err');return;}
+  CU=u;const c=gC();if(!c[u]){c[u]={credits:5,lastClaim:null};sC(c);}
+  renderDash();
+}
+
+// ─── Dashboard ─────────────────────────────────────────────────────────────
+function renderDash(){
+  const cr=gC()[CU]?.credits??0;
+  $('app').innerHTML=`
+  <div class='fade'>
+
+    <!-- Header -->
+    <div style='display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px'>
+      <div>
+        <div style='display:flex;align-items:center;gap:10px'>
+          <span style='font-size:1.8rem' class='moon'>🌙</span>
+          <h1 class='lt' style='font-size:1.75rem;margin:0'>LunarFuscate</h1>
+          <span class='syne' style='font-size:9.5px;padding:2px 9px;border-radius:9999px;background:rgba(109,40,217,.2);border:1px solid rgba(109,40,217,.32);color:#a78bfa;letter-spacing:.07em'>v2.0</span>
+        </div>
+        <p class='syne' style='font-size:10.5px;color:#334155;margin:3px 0 0 46px;letter-spacing:.1em'>LUA OBFUSCATION SUITE</p>
+      </div>
+      <div style='display:flex;align-items:center;gap:7px'>
+        <div class='cpill' style='display:flex;align-items:center;gap:7px;padding:7px 13px;font-size:13px'>
+          <i class='fa-solid fa-moon' style='color:#a78bfa;font-size:11px'></i>
+          <span style='color:#94a3b8'><span id='cc' style='font-weight:600;color:#c4b5fd'>${cr}</span> credits</span>
+        </div>
+        <button onclick='claimC()' class='glass rounded-2xl' style='padding:7px 12px;font-size:12px;cursor:pointer;color:#94a3b8;font-family:DM Sans,sans-serif;border:none'>
+          <i class='fa-solid fa-gift' style='color:#a78bfa;margin-right:5px'></i>+2
+        </button>
+        <button onclick='renderAuth()' class='glass rounded-xl' style='padding:7px 10px;font-size:13px;cursor:pointer;color:#475569;font-family:DM Sans,sans-serif;border:none' title='Logout'>
+          <i class='fa-solid fa-right-from-bracket'></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Feature strip -->
+    <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px'>
+      <div class='glass rounded-2xl' style='padding:13px 15px'>
+        <div class='fic' style='background:rgba(109,40,217,.18);margin-bottom:10px'><i class='fa-solid fa-shield-halved' style='color:#a78bfa'></i></div>
+        <div class='syne' style='font-size:12.5px;font-weight:700'>Anti-Tamper</div>
+        <div style='font-size:11px;color:var(--mut);margin-top:2px'>XOR cipher + byte arrays</div>
+      </div>
+      <div class='glass rounded-2xl' style='padding:13px 15px'>
+        <div class='fic' style='background:rgba(67,56,202,.18);margin-bottom:10px'><i class='fa-solid fa-layer-group' style='color:#818cf8'></i></div>
+        <div class='syne' style='font-size:12.5px;font-weight:700'>Up to 7 Layers</div>
+        <div style='font-size:11px;color:var(--mut);margin-top:2px'>XOR + 6× Base64 (Demonic)</div>
+      </div>
+      <div class='glass rounded-2xl' style='padding:13px 15px'>
+        <div class='fic' style='background:rgba(6,182,212,.1);margin-bottom:10px'><i class='fa-solid fa-code' style='color:#67e8f9'></i></div>
+        <div class='syne' style='font-size:12.5px;font-weight:700'>200k+ Junk Vars</div>
+        <div style='font-size:11px;color:var(--mut);margin-top:2px'>Chunked payload assembly</div>
+      </div>
+    </div>
+
+    <!-- Main panel -->
+    <div class='glass rounded-3xl' style='padding:20px 22px'>
+
+      <p class='syne' style='font-size:10px;font-weight:700;color:#334155;letter-spacing:.12em;margin:0 0 10px'>OBFUSCATION MODE</p>
+
+      <!-- Mode cards -->
+      <div style='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px'>
+        <div id='mc-s' class='mc mc-s on' onclick='setMode("simple")'>
+          <div style='display:flex;align-items:center;justify-content:space-between'>
+            <span class='syne' style='font-size:12px;font-weight:700;color:#93c5fd'><i class='fa-solid fa-bolt' style='margin-right:6px'></i>Simple</span>
+            <span class='bdg b-b'>0.5 cr</span>
+          </div>
+          <div style='font-size:10.5px;color:#334155'>2× B64 + comment flood</div>
+        </div>
+        <div id='mc-p' class='mc mc-p' onclick='setMode("premium")'>
+          <div style='display:flex;align-items:center;justify-content:space-between'>
+            <span class='syne' style='font-size:12px;font-weight:700;color:#c4b5fd'><i class='fa-solid fa-wand-magic-sparkles' style='margin-right:6px'></i>Premium</span>
+            <span class='bdg b-p'>2 cr</span>
+          </div>
+          <div style='font-size:10.5px;color:#334155'>4× B64 + 5k junk vars</div>
+        </div>
+        <div id='mc-d' class='mc mc-d' onclick='setMode("demonic")'>
+          <div style='display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1'>
+            <span class='syne' style='font-size:12px;font-weight:700;color:#fca5a5'><i class='fa-solid fa-skull-crossbones' style='margin-right:6px'></i>Demonic</span>
+            <span class='bdg b-r'>5 cr</span>
+          </div>
+          <div style='font-size:10.5px;color:#334155;position:relative;z-index:1'>XOR + 6× B64 + 200k junk</div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <textarea id='src' rows='9' class='w-full rounded-2xl border border-white/8' style='padding:14px 15px;font-size:12px;resize:vertical' placeholder='-- Paste your Lua / Luau script here...'></textarea>
+
+      <!-- Obfuscate button -->
+      <button id='runBtn' onclick='runObf()' class='w-full rounded-2xl syne' style='margin-top:10px;padding:14px;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;color:#fff;background:linear-gradient(135deg,#6d28d9,#4338ca);box-shadow:0 4px 20px rgba(109,40,217,.4);border:none;transition:all .2s'>
+        <i class='fa-solid fa-wand-magic-sparkles' style='margin-right:8px'></i>OBFUSCATE
+      </button>
+
+      <!-- Output -->
+      <textarea id='out' rows='9' class='w-full rounded-2xl border border-white/8' style='padding:14px 15px;font-size:12px;margin-top:12px;resize:vertical' placeholder='-- Obfuscated output will appear here...' readonly></textarea>
+
+      <!-- Action row -->
+      <div style='display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px'>
+        <button onclick='cpOut()' class='glass rounded-2xl' style='display:flex;align-items:center;gap:6px;padding:9px 15px;font-size:12.5px;cursor:pointer;font-family:DM Sans,sans-serif;border:none'>
+          <i class='fa-regular fa-copy' style='color:#a78bfa'></i>Copy
+        </button>
+        <button onclick='dlOut()' class='glass rounded-2xl' style='display:flex;align-items:center;gap:6px;padding:9px 15px;font-size:12.5px;cursor:pointer;font-family:DM Sans,sans-serif;border:none'>
+          <i class='fa-solid fa-download' style='color:#818cf8'></i>Download .lua
+        </button>
+        <span id='outInfo' style='margin-left:auto;font-size:11px;color:#1e293b;font-family:JetBrains Mono,monospace'></span>
+      </div>
+      <p class='notice'>Clipboard blocked? Output is auto-selected — press Ctrl+C / Cmd+C to copy.</p>
+
+    </div>
+  </div>`;
+  setMode('simple');
+}
+
+// ─── Mode Select ───────────────────────────────────────────────────────────
+function setMode(m){
+  SM=m;
+  [['s','simple'],['p','premium'],['d','demonic']].forEach(([k,n])=>{
+    const el=$('mc-'+k); if(el) el.classList.toggle('on',n===m);
+  });
+  const btn=$('runBtn'); if(!btn) return;
+  const cfg={
+    simple: ['linear-gradient(135deg,#1d4ed8,#1e40af)','0 4px 18px rgba(96,165,250,.28)'],
+    premium:['linear-gradient(135deg,#6d28d9,#4338ca)','0 4px 20px rgba(109,40,217,.42)'],
+    demonic:['linear-gradient(135deg,#dc2626,#991b1b)','0 4px 22px rgba(239,68,68,.42)'],
+  };
+  btn.style.background=cfg[m][0];
+  btn.style.boxShadow =cfg[m][1];
+}
+
+// ─── Run ───────────────────────────────────────────────────────────────────
+function runObf(){
+  const prices={simple:.5,premium:2,demonic:5};
+  const store=gC(), data=store[CU]||{credits:0,lastClaim:null};
+  if(data.credits<prices[SM]){toast('Not enough credits','err');return;}
+  const code=$('src')?.value.trim();
+  if(!code){toast('Paste a script first','warn');return;}
+  const btn=$('runBtn');
+  btn.disabled=true;
+  btn.innerHTML=`<span class='spin'></span>${SM==='demonic'?'Generating demonic output...':'Processing...'}`;
+  setTimeout(()=>{
+    const out=obfuscate(code,SM);
+    data.credits-=prices[SM]; store[CU]=data; sC(store);
+    const cc=$('cc'); if(cc) cc.textContent=data.credits;
+    const outEl=$('out'); if(outEl) outEl.value=out;
+    const info=$('outInfo');
+    if(info) info.textContent=`${(out.length/1024).toFixed(1)} KB · ${out.split('\n').length.toLocaleString()} lines`;
+    btn.disabled=false;
+    btn.innerHTML=SM==='demonic'
+      ?`<i class='fa-solid fa-skull-crossbones' style='margin-right:8px'></i>DEMONIFIED!`
+      :`<i class='fa-solid fa-check' style='margin-right:8px'></i>DONE!`;
+    setTimeout(()=>{
+      btn.innerHTML=`<i class='fa-solid fa-wand-magic-sparkles' style='margin-right:8px'></i>OBFUSCATE`;
+      setMode(SM);
+    },2200);
+    toast(`${SM[0].toUpperCase()+SM.slice(1)} obfuscation complete`,'ok');
+  },40);
+}
+
+// ─── Credits ───────────────────────────────────────────────────────────────
+function claimC(){
+  const store=gC(), data=store[CU];
+  const today=new Date().toDateString();
+  if(data.lastClaim===today){toast('Already claimed today','warn');return;}
+  data.credits+=2; data.lastClaim=today; store[CU]=data; sC(store);
+  const cc=$('cc'); if(cc) cc.textContent=data.credits;
+  toast('+2 lunar credits claimed 🌙','ok');
+}
+
+// ─── Copy ──────────────────────────────────────────────────────────────────
+async function cpOut(){
+  const el=$('out'); if(!el?.value){toast('Nothing to copy','warn');return;}
+  const ok=await copyText(el.value);
+  if(ok) toast('Copied to clipboard','ok');
+  else{el.focus();el.select();toast('Clipboard blocked — Ctrl+C to copy','warn');}
+}
+
+// ─── Download ──────────────────────────────────────────────────────────────
+function dlOut(){
+  const el=$('out'); const txt=el?.value||'';
+  if(!txt){toast('Nothing to download','warn');return;}
+  const old=$('dlBox'); if(old) old.remove();
+  const box=document.createElement('div');
+  box.id='dlBox'; box.className='glass rounded-2xl fade';
+  box.style.cssText='padding:14px 16px;margin-top:10px';
+  const href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);
+  box.innerHTML=`
+    <div style='display:flex;align-items:center;justify-content:space-between'>
+      <div>
+        <div class='syne' style='font-size:13px;font-weight:700;margin-bottom:5px'>
+          <i class='fa-solid fa-file-code' style='color:#a78bfa;margin-right:8px'></i>Download ready
+        </div>
+        <a href='${href}' download='lunarfuscated.lua' style='font-size:12.5px;color:#a78bfa;text-decoration:underline'>
+          Save lunarfuscated.lua
+        </a>
+      </div>
+      <button onclick='document.getElementById("dlBox").remove()' style='font-size:1.3rem;color:#334155;cursor:pointer;background:none;border:none;padding:0 4px;line-height:1'>×</button>
+    </div>
+    <p class='notice' style='margin-top:7px'>If saving is blocked, use Copy output and paste into a <code>.lua</code> file.</p>`;
+  el.parentNode.appendChild(box);
+}
+
+// ─── Boot ──────────────────────────────────────────────────────────────────
+renderAuth();
+</script>
+</body>
+</html>
